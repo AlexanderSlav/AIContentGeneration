@@ -2,7 +2,7 @@ import os
 
 from loguru import logger
 
-from config import config
+from src.config import config
 
 if not os.path.exists(config.log_path):
     os.makedirs(config.log_path)
@@ -14,12 +14,7 @@ logger.add(
     log_file_path,
     rotation="1 MB",
     retention="3 days",
-    level="DEBUG",
-    format="{time} :: {level} :: {file}.{function} {message}",
-)
-logger.add(
-    "stdout:",
-    level="DEBUG",
+    level=config.log_level,
     format="{time} :: {level} :: {file}.{function} {message}",
 )
 

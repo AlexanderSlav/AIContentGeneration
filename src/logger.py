@@ -1,20 +1,31 @@
 import os
+import sys
 
 from loguru import logger
 
-from src.config import config
+from src.config import Config
 
-if not os.path.exists(config.log_path):
-    os.makedirs(config.log_path)
+config = Config()
 
-log_file_path = os.path.join(config.log_path, "app.log")
+if not os.path.exists(config.logging_params.log_path):
+    os.makedirs(config.logging_params.log_path)
 
 logger.remove()
+
+
 logger.add(
-    log_file_path,
-    rotation="1 MB",
-    retention="3 days",
-    level=config.log_level,
+    config.logging_params.log_file_path,
+    rotation="00:00",  # Create a new log file every day at midnight
+    retention="7 days",  # Keep log files for 7 days
+    level=config.logging_params.log_level,
+    format="{time} :: {level} :: {file}.{function} {message}",
+    serialize=False,
+)
+
+# Add logging to console (standard output)
+logger.add(
+    sys.stdout,
+    level=config.logging_params.log_level,
     format="{time} :: {level} :: {file}.{function} {message}",
 )
 

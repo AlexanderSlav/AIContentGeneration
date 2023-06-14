@@ -49,6 +49,7 @@ class QuizBot:
 
     async def handle_query(self, call: types.CallbackQuery, state: FSMContext):
         data = await state.get_data()
+        logger.info(f"Callback data: {data}")
         if game_type := data.get(StateKeys.GAME_TYPE.value):
             handler = self.handlers[game_type]
             await handler.handle_query(call)
@@ -60,6 +61,19 @@ class QuizBot:
             await QuizForm.waiting_for_game_type.set()
             await state.update_data({StateKeys.GAME_TYPE.value: call.data})
             await QuizForm.waiting_for_movie_name.set()  # add this line
+
+        elif call.data in ["confirm", "next"]:
+            logger.info(f"Received {call.data} from {call.from_user.id}")
+            # logger.info("Current state data:", call.data)
+            logger.info(f"Current game type {game_type}")
+            logger.info(
+                f"Current game type expected {data.get(StateKeys.GAME_TYPE.value)}"
+            )
+            if game_type := data.get(StateKeys.GAME_TYPE.value):
+                handler = self.handlers[game_type]
+                await handler.handle_query(call)
+                await state.finish()
+
         else:
             await self.bot.answer_callback_query(
                 call.id, "This feature is not implemented yet."

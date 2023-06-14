@@ -57,6 +57,8 @@ class GuessSceneRoundCreator:
             image = self.images.pop(0)
             await self.movie_search_engine.download([image], self.download_path)
 
+            logger.info("DEBUG", call.message.photo[-1].file_id, call.message.caption)
+            print(call.message.photo[-1].file_id, call.message.caption)
             scene = Scene(call.message.photo[-1].file_id, call.message.caption)
             self.scene_collector.add_scene(scene)
             await self.bot.answer_callback_query(call.id, "Image confirmed.")

@@ -22,7 +22,7 @@ class GoogleAPISceneEngine(SceneSearchEngine):
         self.api_key = api_key
         self.custom_search_cx = custom_search_cx
 
-    async def search(self, movie_name: str) -> List:
+    async def search(self, movie_name: str, q: str =  "Scene from movie ") -> List:
         """
         Searches for images of movie scenes via Google Images Search.
 
@@ -33,11 +33,11 @@ class GoogleAPISceneEngine(SceneSearchEngine):
         # Async call to Google Images Search API
         loop = asyncio.get_event_loop()
         with futures.ThreadPoolExecutor(max_workers=5) as pool:
-            results = await loop.run_in_executor(pool, self._search_movie, movie_name)
+            results = await loop.run_in_executor(pool, self._search_movie, movie_name, q)
 
         return results
 
-    def _search_movie(self, movie_name: str) -> List:
+    def _search_movie(self, movie_name: str, q: str = "Scene from movie ") -> List:
         """
         Searches for scenes of the movie and returns the result.
 
@@ -50,7 +50,7 @@ class GoogleAPISceneEngine(SceneSearchEngine):
 
         # Define search params
         _search_params = {
-            "q": movie_name,
+            "q": f"{q}: {movie_name}",
             "num": self.num_frames_per_request,
             "safe": "high",
             "fileType": "jpg|gif|png",
@@ -80,7 +80,8 @@ class GoogleAPISceneEngine(SceneSearchEngine):
                             executor, image.download, download_path
                         )
                         logger.debug(
-                            f"Image downloaded at {download_path}/{image.path}"
+                            f"Image downloaded at {image.path}"
                         )
                     except Exception as e:
                         logger.error(f"Error downloading image: {e}")
+                return image.path
